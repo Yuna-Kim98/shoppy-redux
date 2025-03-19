@@ -13,17 +13,17 @@ import CheckoutInfo from './pages/CheckoutInfo.jsx';
 import PaymentSuccess from './pages/PaymentSuccess.js';
 import MyPage from './pages/MyPage.jsx';
 
-import { AuthProvider } from './auth/AuthContext.js';
-import { CartProvider } from './context/CartContext.js';
-import { OrderProvider } from './context/OrderContext.js';
+// import { AuthProvider } from './auth/AuthContext.js';
+// import { CartProvider } from './context/CartContext.js';
+// import { OrderProvider } from './context/OrderContext.js';
 
 export default function App() {
 
   return (
     <div>
-      <OrderProvider>
+      {/* <OrderProvider>
       <CartProvider>
-      <AuthProvider>
+      <AuthProvider> */}
       <BrowserRouter>
           <Routes>
               <Route path='/' element={<Layout />} >
@@ -40,9 +40,9 @@ export default function App() {
               </Route>
           </Routes>            
       </BrowserRouter>
-      </AuthProvider>
+      {/* </AuthProvider>
       </CartProvider>
-      </OrderProvider>
+      </OrderProvider> */}
     </div>
   );
 }

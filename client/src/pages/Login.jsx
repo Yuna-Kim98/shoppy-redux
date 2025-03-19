@@ -1,15 +1,19 @@
-import React, { useState, useRef, useContext } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import '../styles/login.css';
 import { FaUser } from "react-icons/fa";
 import { FaLock } from "react-icons/fa";
 import { validateLogin } from '../utils/funcValidate.js';
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
-import { AuthContext } from '../auth/AuthContext.js';
+import { getLogin, getLoginReset } from '../services/authApi.js';
+import { useSelector, useDispatch } from 'react-redux';
 
 export default function Login() {
-    const { isLoggedIn, setIsLoggedIn } = useContext(AuthContext);
     const navigate = useNavigate();
+    const dispatch = useDispatch();
+    const isLoggedIn = useSelector(state => state.login.isLoggedIn); // store에 직접 접근
+    const isError = useSelector(state => state.login.isError);
+
+    // useEffect에서 사용하기 때문에 반드시 먼저 선언(호이스팅)이 되도록 함
     const refs = {
         "idRef" : useRef(null),
         "pwdRef" : useRef(null) 
@@ -17,8 +21,29 @@ export default function Login() {
     const msgRefs = {
         "msgRef" : useRef(null)
     }
-
     const [formData, setFormData] = useState({'id':'', 'pwd':''});
+
+
+    useEffect(() => {
+        if (isError) {
+            alert("로그인 실패. 다시 시도해 주세요.");
+            navigate("/login");
+
+            // isError 리셋 필요 : isError가 true로 바뀌었기 때문에 계속 로그인에 실패해도 추가 이벤트가 발생하지 않기 때문
+            // 이때, dispatch는 단방향이기 때문에 refs를 먼저 처리해주어야 함
+            refs.idRef.current.value = "";
+            refs.pwdRef.current.value = "";
+            dispatch(getLoginReset());
+        }
+    }, [isError]);
+
+    useEffect(() => {
+        if (isLoggedIn) {
+            alert("로그인 성공!");
+            navigate('/');
+        }
+    }, [isLoggedIn]);
+
 
     /** form 데이터 입력 함수 */
     const handleChangeForm = (event) => {
@@ -30,27 +55,8 @@ export default function Login() {
     const handleLoginSubmit = (event) => {
         event.preventDefault();        
         if(validateLogin(refs, msgRefs)) {
-
-            //리액트 ---> 노드서버(express) 데이터 전송 로그인
-            axios
-                .post('http://localhost:9000/member/login', formData)
-                .then(res => {
-                    // console.log('res.data-->', res.data) 
-                    if(res.data.result_rows === 1) {
-                        alert("로그인 성공!!");
-                        localStorage.setItem("token", res.data.token);
-                        localStorage.setItem("user_id", formData.id);                        
-                        setIsLoggedIn(true);
-                        navigate('/');
-                    } else {
-                        alert("로그인 실패!!");
-                    }
-                })
-                .catch(error => {
-                    alert("로그인 실패!!");
-                    console.log(error);
-                });    
-            
+            // redux 변환
+            dispatch(getLogin(formData));
         }
     }
 

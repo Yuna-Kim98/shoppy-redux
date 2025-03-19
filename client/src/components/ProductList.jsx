@@ -2,14 +2,17 @@ import React, { useState, useEffect } from 'react';
 import ProductAvata from './ProductAvata.jsx';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { getProductList } from '../services/productApi.js';
 
 export default function ProductList() {
-    const [list, setList] = useState([]); // list변경시 실시간 업데이트
+    const dispatch = useDispatch();
+
+    // const [list, setList] = useState([]); // list변경시 실시간 업데이트
+    const list = useSelector(state => state.product.productList);
 
     useEffect(()=>{
-        axios.get('http://localhost:9000/product/all')
-            .then(res => setList(res.data))
-            .catch((error) => console.log(error));
+        dispatch(getProductList());
     }, []);
 
 

@@ -1,39 +1,39 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { PiGiftThin } from "react-icons/pi";
 import Detail from "../components/detail_tabs/Detail.jsx";
 import Review from "../components/detail_tabs/Review.jsx";
 import ImageList from "../components/commons/ImageList.jsx";
 import StarRating from "../components/commons/StarRating.jsx";
-import axios from "axios";
-import { CartContext } from "../context/CartContext.js";
-import { AuthContext } from "../auth/AuthContext.js";
-import { useCart } from "../hooks/useCart.js";
-
+import { useSelector, useDispatch } from "react-redux";
+import { updateCartList, saveToCartList, clearIsAdded } from "../services/cartApi.js";
+import { getProduct, getSize } from "../services/productApi.js";
 
 export default function DetailProduct() {
-  const { saveToCartList, updateCartList } = useCart();
+  const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { isLoggedIn} = useContext(AuthContext);
-  const { cartList } = useContext(CartContext);
   const { pid } = useParams();
-  const [product, setProduct] = useState({});
-  const [imgList, setImgList] = useState([]);
-  const [detailImgList, setDetailImgList] = useState([]);
-  const [size, setSize] = useState("XS");
+  const isLoggedIn = useSelector(state => state.login.isLoggedIn);
+  const cartList = useSelector(state => state.cart.cartList);
+  const isAdded = useSelector(state => state.cart.isAdded);
+  const product = useSelector(state => state.product.product);
+  const imgList = useSelector(state => state.product.imgList);
+  const detailImgList = useSelector(state => state.product.detailImgList);
+  const size = useSelector(state => state.product.size);
+
   const [tabName, setTabName] = useState('detail');
   const tabLabels = ['DETAIL', 'REVIEW', 'Q&A', 'RETURN & DELIVERY'];
   const tabEventNames = ['detail', 'review', 'qna', 'return'];
 
   useEffect(() => {
-    axios
-      .post("http://localhost:9000/product/detail", {"pid":pid}) 
-      .then((res) => {
-          setProduct(res.data);
-          setImgList(res.data.imgList);
-          setDetailImgList(res.data.detailImgList);
-        })
-      .catch((error) => console.log(error));
+    if(isAdded) {
+      alert("장바구니에 추가되었습니다.");
+      dispatch(clearIsAdded());
+    }
+  }, [isAdded]);
+
+  useEffect(() => {
+    dispatch(getProduct(pid));
   }, []);
 
   
@@ -45,15 +45,11 @@ export default function DetailProduct() {
                                             && item.size === size);                                  
         if(findItem !== undefined) {  
             //qty+1 업데이트      
-            const result = updateCartList(findItem.cid, "increase");
+            const result = dispatch(updateCartList(findItem.cid, "increase"));
             result && alert("장바구니에 추가되었습니다.");
         } else {
-            //새로 추가
-            const id = localStorage.getItem("user_id");
-            const formData = {id:id, cartList:[cartItem]};
-            const result = saveToCartList(formData);
-            result && alert("장바구니에 추가되었습니다.");
-        }                                            
+            dispatch(saveToCartList(cartItem));
+        }
     } else {
       const select = window.confirm("로그인 서비스가 필요합니다. \n로그인 하시겠습니까?");
       if(select) {
@@ -88,7 +84,7 @@ export default function DetailProduct() {
             <button className="product-detail-button size">사이즈 </button>
             <select
               className="product-detail-select2"
-              onChange={(e) => setSize(e.target.value)}
+              onChange={(e) => dispatch(getSize(e.target.value))}
             >
               <option value="XS">XS</option>
               <option value="S">S</option>
