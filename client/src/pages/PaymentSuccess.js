@@ -1,9 +1,5 @@
 import React, { useEffect, useRef, useState, useContext } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-// import { useOrder } from '../hooks/useOrder.js';
-// import { useCart } from '../hooks/useCart.js';
-// import { AuthContext } from "../auth/AuthContext.js";
-import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { saveToOrder } from '../services/orderApi.js';
 import { clearCart } from '../services/cartApi.js';
@@ -13,9 +9,6 @@ export default function PaymentSuccess() {
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
-    // const { isLoggedIn } = useContext(AuthContext);
-    // const { saveToOrder } = useOrder();
-    // const { clearCart } = useCart();
     const isLoggedIn = useSelector(state => state.login.isLoggedIn);
     const totalPrice = useSelector(state => state.cart.totalPrice);
     const orderList = useSelector(state => state.order.orderList);
@@ -28,24 +21,16 @@ export default function PaymentSuccess() {
     const [isRefresh, setIsRefresh] = useState(true);
 
     useEffect(()=>{  
-            if (hasCheckedLogin.current) return;  // true:로그인 상태 -->  블록 return
+            if (hasCheckedLogin.current) return;
                 hasCheckedLogin.current = true; 
     
             if(isLoggedIn) {    
                 const approvePayment = () => {
                     if (pg_token && tid) {
                         try {                            
-                            // const result_rows = saveToOrder();
-                            // if(result_rows) {
-                            //     const clear_rows = clearCart();
-                            //     clear_rows && result_rows && console.log("결제 승인 완료:");
-                            // } 
-
-                            // redux 변환
                             dispatch(saveToOrder(totalPrice, orderList));
                             if(isSaveSuccess) {
                                 dispatch(clearCart());
-                                // clear_rows && result_rows && console.log("결제 승인 완료:");
                             } 
                             
                         } catch (error) {
@@ -57,36 +42,8 @@ export default function PaymentSuccess() {
             } else {  
                 const select = window.confirm("로그인 서비스가 필요합니다. \n로그인 하시겠습니까?");
                 select ?  navigate('/login') :  navigate('/');
-                // setCartList([]);
             }
         } , [isLoggedIn]);
-
-    // useEffect(() => {
-    //     if (hasCheckedLogin.current && isRefresh) {
-    //         return;  // true:로그인 상태 -->  블록 return
-    //     } else {
-
-    //         const approvePayment = async () => {
-    //             if (pg_token && tid) {
-    //                 try {
-    //                     console.log("결제 승인 완료:");
-    //                     // await getOrderList();
-    //                     const result_rows = await saveToOrder();
-    //                     // console.log("결제 승인 완료:2222222222222222");
-    //                 } catch (error) {
-    //                     console.error("결제 승인 실패:", error);
-    //                 }
-    //             }
-    //         };
-    
-    //         approvePayment();
-
-    //         hasCheckedLogin.current = true; 
-    //         // setIsRefresh(true);
-    //     }
-
-        
-    // }, [pg_token, tid]);
 
     console.log('pg_token', pg_token);
     console.log('tid', tid);

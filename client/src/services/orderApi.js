@@ -10,7 +10,7 @@ export const getOrderList = () => async(dispatch) => {
     const data = { "id": id };
 
     const result = await axiosPost({url, data});
-    const member = result[0]; // result[0]는 변수가 아니므로 문법적으로 {}로 묶을 수 없다. 때문에 따로 변수로 선언해준다.
+    const member = result[0];
     console.log('order list-->', result);
     dispatch(setOrderList({result}));
     dispatch(setMember({member})); 
