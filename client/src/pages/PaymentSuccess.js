@@ -1,19 +1,29 @@
 import React, { useEffect, useRef, useState, useContext } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { useOrder } from '../hooks/useOrder.js';
-import { useCart } from '../hooks/useCart.js';
-import { AuthContext } from "../auth/AuthContext.js";
+// import { useOrder } from '../hooks/useOrder.js';
+// import { useCart } from '../hooks/useCart.js';
+// import { AuthContext } from "../auth/AuthContext.js";
 import axios from "axios";
+import { useDispatch, useSelector } from "react-redux";
+import { saveToOrder } from '../services/orderApi.js';
+import { clearCart } from '../services/cartApi.js';
 
 
 export default function PaymentSuccess() {
+    const dispatch = useDispatch();
     const navigate = useNavigate();
-    const { isLoggedIn } = useContext(AuthContext);
+
+    // const { isLoggedIn } = useContext(AuthContext);
+    // const { saveToOrder } = useOrder();
+    // const { clearCart } = useCart();
+    const isLoggedIn = useSelector(state => state.login.isLoggedIn);
+    const totalPrice = useSelector(state => state.cart.totalPrice);
+    const orderList = useSelector(state => state.order.orderList);
+    const isSaveSuccess = useSelector(state => state.order.isSaveSuccess);
+
     const [searchParams] = useSearchParams();
     const pg_token = searchParams.get("pg_token");
     const tid = localStorage.getItem("tid");
-    const { saveToOrder } = useOrder();
-    const { clearCart } = useCart();
     const hasCheckedLogin = useRef(false); 
     const [isRefresh, setIsRefresh] = useState(true);
 
@@ -21,14 +31,21 @@ export default function PaymentSuccess() {
             if (hasCheckedLogin.current) return;  // true:로그인 상태 -->  블록 return
                 hasCheckedLogin.current = true; 
     
-            if(isLoggedIn) {
-                const approvePayment = async () => {
+            if(isLoggedIn) {    
+                const approvePayment = () => {
                     if (pg_token && tid) {
                         try {                            
-                            const result_rows = await saveToOrder();
-                            if(result_rows) {
-                                const clear_rows = await clearCart();
-                                clear_rows && result_rows && console.log("결제 승인 완료:");
+                            // const result_rows = saveToOrder();
+                            // if(result_rows) {
+                            //     const clear_rows = clearCart();
+                            //     clear_rows && result_rows && console.log("결제 승인 완료:");
+                            // } 
+
+                            // redux 변환
+                            dispatch(saveToOrder(totalPrice, orderList));
+                            if(isSaveSuccess) {
+                                dispatch(clearCart());
+                                // clear_rows && result_rows && console.log("결제 승인 완료:");
                             } 
                             
                         } catch (error) {

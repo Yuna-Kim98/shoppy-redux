@@ -1,21 +1,23 @@
-import React, { useState, useEffect, useContext, useRef } from "react";
-import DaumPostcode from "react-daum-postcode";
-import { useOrder } from '../hooks/useOrder.js';
-import { AuthContext } from '../auth/AuthContext.js';
-import { OrderContext } from "../context/OrderContext.js";
-import { CartContext } from "../context/CartContext.js";
-import axios from "axios";
-
 import "../styles/cart.css";
 import "../styles/checkoutinfo.css";
+import React, { useState, useEffect, useContext, useRef } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import DaumPostcode from "react-daum-postcode";
+import { useOrder } from '../hooks/useOrder.js';
+import { getOrderList, paymentKakaoPay } from "../services/orderApi.js";
+import axios from "axios";
 
 export default function CheckoutInfo() {
+    const dispatch = useDispatch();
+    const isLoggedIn = useSelector(state => state.login.isLoggedIn);
+    const totalPrice = useSelector(state => state.cart.totalPrice);
+    const orderList = useSelector(state => state.order.orderList);
+    const member = useSelector(state => state.order.member);
+    
+    // const { getOrderList, paymentKakaoPay } = useOrder();
+
     const [zipcode, setZipcode] = useState("");
     const [address, setAddress] = useState("");
-    const { totalPrice } = useContext(CartContext);
-    const { isLoggedIn } = useContext(AuthContext);
-    const { orderList, member } = useContext(OrderContext);
-    const { getOrderList, paymentKakaoPay } = useOrder();
     const [ qrUrl, setQrUrl] = useState('');
     const   zipcodeRef = useRef(null), 
             addressRef = useRef(null), 
@@ -25,7 +27,7 @@ export default function CheckoutInfo() {
 
     useEffect(()=>{
         if(isLoggedIn) {
-            getOrderList();
+            dispatch(getOrderList());
         }
     }, [isLoggedIn]);
 
@@ -36,13 +38,14 @@ export default function CheckoutInfo() {
     };
 
     /** 결제하기 버튼 이벤트 처리 */
-    const handlePayment = async() => {
+    const handlePayment = () => {
         console.log(terms1Ref.current.checked);
         console.log(terms2Ref.current.checked);
         if(!(terms1Ref.current.checked && terms2Ref.current.checked)) {
             alert("약관 동의 후 결제가 진행됩니다.");
         } else {
-            await paymentKakaoPay();
+            // await paymentKakaoPay();
+            dispatch(paymentKakaoPay(totalPrice, orderList));
             
             // const id = localStorage.getItem("user_id");        
             // try {
