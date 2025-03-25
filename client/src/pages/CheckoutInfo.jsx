@@ -49,7 +49,7 @@ export default function CheckoutInfo() {
             
             // const id = localStorage.getItem("user_id");        
             // try {
-            //     const response = await axios.post("http://localhost:9000/payment/qr", {
+            //     const response = await axios.post("http://43.200.163.45:9000/payment/qr", {
             //         id:id,
             //         item_name: "테스트 상품",
             //         total_amount: 1000, // 결제 금액 (KRW)

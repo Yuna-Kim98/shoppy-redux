@@ -16,7 +16,7 @@ export const getLogout = () => (dispatch) =>  {
 
 /** 로그인 버튼 클릭 시 */
 export const getLogin = (formData) => async(dispatch) => {
-    const url = 'http://localhost:9000/member/login';
+    const url = 'http://43.200.163.45:9000/member/login';
     const data = formData;
 
     const loginResult = await axiosPost({url, data}); // 공통 api 사용

@@ -5,7 +5,7 @@ import { setProductList, setProduct, setImgList, setDetailImgList, setSize } fro
  * 전체 상품 정보 가져오기 : getProductList
  */
 export const getProductList = () => async(dispatch) => {
-    const url = 'http://localhost:9000/product/all';
+    const url = 'http://43.200.163.45:9000/product/all';
 
     const result = await axiosGet({url});
     dispatch(setProductList({result}));
@@ -16,7 +16,7 @@ export const getProductList = () => async(dispatch) => {
  * 개별 상품 정보 가져오기 : getProduct
  */
 export const getProduct = (pid) => async(dispatch) => {
-    const url = 'http://localhost:9000/product/detail';
+    const url = 'http://43.200.163.45:9000/product/detail';
     const data = {"pid":pid};
 
     const result = await axiosPost({url, data});
@@ -29,7 +29,7 @@ export const getProduct = (pid) => async(dispatch) => {
     dispatch(setDetailImgList({detailImgList}));
 
     // axios
-    //   .post("http://localhost:9000/product/detail", {"pid":pid}) 
+    //   .post("http://43.200.163.45:9000/product/detail", {"pid":pid}) 
     //   .then((res) => {
     //       setProduct(res.data);
     //       setImgList(res.data.imgList);
